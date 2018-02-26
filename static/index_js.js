@@ -15,13 +15,15 @@ d3.json("/names", function(error, response){
 
     // plot the first pie chart
     plot_pie(response[0]);
+    // plot the first bubble chart
+    plot_bubble_chart(response[0]);
 }) 
 
 // set sample to whatever option is selected
 function optionChanged(option){
     console.log(option);
     plot_pie(option);// restyle pie chart
-    // plot_bubble_chart(option); // restyle bubble chart
+    plot_bubble_chart(option); // restyle bubble chart
     // Plotly.restyle() // restyle gauge
 }
 
@@ -32,6 +34,7 @@ function plot_pie(sample) { // display the top 10 samples
 
     Plotly.d3.json(sample_url, function(error, response){
         // get the top 10 values, id, and matching description:
+        console.log("response length: " + response[0]['otu_ids'].length);
         var top_values = [];
         var top_otu_ids = [];
         var top_otuDescr = [];
@@ -42,7 +45,7 @@ function plot_pie(sample) { // display the top 10 samples
             top_otu_ids.push(otu_id);
         }
 
-            // get the top top otu_id descriptions
+            // get the top otu_id descriptions
         Plotly.d3.json(otu_url, function(error, otu_url_response){
             for (var i=0; i<10; i++){
                 // get the id number for each top otu id
@@ -87,7 +90,7 @@ function plot_pie(sample) { // display the top 10 samples
         }
         
         // Create new plot if there is none, otherwise just restyle
-        var element = document.getElementById("pie_chart"); //note: THIS IS HTML WHITESPACE SENSITIVE!!!
+        var element = document.getElementById("pie_chart"); 
         if (element.children.length == 0){ // if there is no plot under "#pie_chart"
             console.log("Plotting a new PIE!")
             Plotly.newPlot("pie_chart", data, layout);
@@ -101,8 +104,76 @@ function plot_pie(sample) { // display the top 10 samples
     }); // ends Plotly.d3.json for sample_url;
 }
 
-function plot_bubble_chart(option){
-    var sample_url = "/samples/<sample>";
+// Plot bubble chart function (param: user_selected_sample_option)
+function plot_bubble_chart(sample){
+    var sample_url = "/samples/" + sample;
     var otu_url = "/otu";
+
+    Plotly.d3.json(sample_url, function(error, response){
+        var otu_ids = response[0]['otu_ids'];
+        var sample_values = response[0]['sample_values'];
+        var otuID_length = otu_ids.length;
+        var otu_descr = [];
+
+        // save otu id descriptions to otu_descr
+        Plotly.d3.json(otu_url, function(error, response){
+            for (i=0; i<otuID_length; i++){
+                var ID = Number(otu_ids[i]); // remember: the IDs range from 1-3674 but aren't sorted sequentially
+                var description = JSON.stringify(response[ID - 1]); // the IDs start at one while arrays start at 0
+                var split_str = description.split(";");
+                var joined_descr = split_str.join("<br>");
+                otu_descr.push(joined_descr);
+            } 
+        }); // end Plotly.d3.json for the otu description url
+        console.log("otu_descr: " + otu_descr); // This array is empty! why???
+
+        /*** Use the OTU IDs for the x values & the Sample Values for the y values, 
+         * Use the Sample Values for the marker size & the OTU IDs for the marker colors,
+         * Use the OTU Description Data for the text values ***/
+        var trace = [{
+            x: otu_ids,
+            y: sample_values,
+            mode: 'markers',
+            marker: {
+                size: sample_values
+            },
+            text: otu_descr
+        }];
+
+        var layout = {
+            height: 600,
+            width: 800,
+            xaxis: {
+                title: "OTU IDs"
+            },
+            yaxis: {
+                title: "Sample Values"
+            }
+        };
+
+        // update vars
+        var update_x = otu_ids;
+        var update_y = sample_values;
+        var update_marker = {
+            size: sample_values
+        };
+        var update_hovtxt = otu_descr; 
+
+
+        // Create new bubble plot at "#bubble_chart" if there is none; otherwise just restyle
+        var element = document.getElementById("bubble_chart");   
+        if (element.children.length == 0){
+            console.log("Plotting a new BUBBLE CHART!")
+            Plotly.newPlot("bubble_chart", trace, layout);
+        } else {
+            console.log("Restyling Bubble Chart")
+            Plotly.restyle("bubble_chart", "x", [update_x]);
+            Plotly.restyle("bubble_chart", "y", [update_y]);
+            Plotly.restyle("bubble_chart", "marker", [update_marker]);
+            Plotly.restyle("bubble_chart", "text", [update_hovtxt]);
+
+        }
+
+    }); // END Plotly.d3.json for the samples url
 
 }
