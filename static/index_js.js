@@ -44,24 +44,26 @@ function plot_pie(sample) { // display the top 10 samples
 
             // get the top top otu_id descriptions
         Plotly.d3.json(otu_url, function(error, otu_url_response){
-            for (var i=0; i<top_otu_ids.length; i++){
+            for (var i=0; i<10; i++){
                 // get the id number for each top otu id
                 var otuID = Number(top_otu_ids[i]);
                 // since otu description is listed sequentially from otuID = 1 to 3675, can use id as form of index
                 var otu_descr = otu_url_response[otuID - 1];
+                console.log(typeof otu_descr);
                 top_otuDescr.push(otu_descr);
             }
-        
-        // clean up top_otuDescr: adding </br> after each ;;
-        for (var i=0; i<10; i++){
-            console.log(top_otuDescr[i]);
-            var split_otuDescr = top_otuDescr[i].split(";");
-            var joined_otuDescr = split_otuDescr.join("<br>");
-            console.log(joined_otuDescr);
-            top_otuDescr.splice(i, 1, joined_otuDescr);
-        }
-        console.log(top_otuDescr);
+
+            // clean up top_otuDescr: adding </br> after each ;;
+            for (var i=0; i<10; i++){
+                var newString = JSON.stringify(top_otuDescr[i]);
+                var split_otuDescr = newString.split(";");
+                var joined_otuDescr = split_otuDescr.join("<br>");
+                top_otuDescr.splice(i, 1, joined_otuDescr);
+            }
+            console.log("top_otuDescr inside the plotly: " + top_otuDescr[0]);
+
         }); // ends Plotly.d3.json for otu_url
+        console.log("top_otuDescr outside the loop: " + top_otuDescr); // WHY IS THIS AN EMPTY ARRAY BUT THE HOVERTEXT STILL WORKS?!?!?!
 
         // Use the Sample Value as the values for the PIE chart; Use the OTU ID as the labels for the pie chart; 
         var data = [{
