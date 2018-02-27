@@ -1,8 +1,12 @@
 #top_banner {
     text-align: center;
-    background-color: aquamarine;
+    background-color: SeaGreen;
     padding-top: 30px;
     padding-bottom: 30px;
+}
+
+h1.banner_text{
+    color: whitesmoke;
 }
 
 .banner_descr {
@@ -12,25 +16,25 @@
 #selector_div{ /* div for the sample selector dropdown menu */
     text-align: center;
     padding-bottom: 30px;
-    border: 1.5px solid red;
+    border: 1.5px solid brown;
     border-radius: 5px;
 }
 
 h5.select_title{
     padding-top: 20px;
     padding-bottom: 15px;
-    background-color: brown;
+    background-color: crimson;
 }
 
 h5.metaData_title{
     padding-top: 15px;
     padding-bottom: 15px;
-    background-color: brown;
+    background-color: crimson;
 }
 
 #metaData{
     text-align: center;
-    border: 1.5px solid red;
+    border: 1.5px solid brown;
     border-radius: 5px;
 }
 

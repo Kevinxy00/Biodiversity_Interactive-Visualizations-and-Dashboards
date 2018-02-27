@@ -104,7 +104,8 @@ function plot_pie(sample) { // display the top 10 samples
             labels: top_otu_ids,
             type: "pie",
             hoverinfo: "text",
-            hovertext: top_otuDescr
+            hovertext: top_otuDescr,
+            opacity: 0.9
         }];
 
         // restyle only takes in one array at a time. Vars store the updated value, label, and hovertext;
@@ -168,10 +169,8 @@ function plot_bubble_chart(sample){
             text: otu_descr,
             marker: {
                 size: sample_values,
-                color: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
-                    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 
-                    31, 32, 33, 34, 35, 36, 37, 38, 39],
-                reversescale: true
+                color: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                reversescale:true
             },
             type: 'scatter'
         };
@@ -194,9 +193,7 @@ function plot_bubble_chart(sample){
         // update vars
         var update_x = otu_ids;
         var update_y = sample_values;
-        var update_marker = {
-            size: sample_values
-        };
+        var update_marker = sample_values;
         var update_hovtxt = otu_descr; 
 
 
@@ -209,7 +206,7 @@ function plot_bubble_chart(sample){
             console.log("Restyling Bubble Chart")
             Plotly.restyle("bubble_chart", "x", [update_x]);
             Plotly.restyle("bubble_chart", "y", [update_y]);
-            Plotly.restyle("bubble_chart", "marker", [update_marker]);
+            Plotly.restyle("bubble_chart", "marker.size", [update_marker]);
             Plotly.restyle("bubble_chart", "text", [update_hovtxt]);
 
         }
