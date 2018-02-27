@@ -167,8 +167,13 @@ function plot_bubble_chart(sample){
             hoverinfo: "text + x + y", 
             text: otu_descr,
             marker: {
-                size: sample_values
-            }
+                size: sample_values,
+                color: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
+                    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 
+                    31, 32, 33, 34, 35, 36, 37, 38, 39],
+                reversescale: true
+            },
+            type: 'scatter'
         };
 
         var traces = [trace1];
@@ -208,6 +213,5 @@ function plot_bubble_chart(sample){
             Plotly.restyle("bubble_chart", "text", [update_hovtxt]);
 
         }
-
     }); // END Plotly.d3.json for the samples url
 } //END bubble chart function
