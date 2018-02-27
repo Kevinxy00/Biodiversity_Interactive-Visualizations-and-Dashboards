@@ -3,6 +3,9 @@
 
 // get the selector and append an option for each sample from "/names"
 var $selector = document.getElementById("selDataset");
+// get the metadata table section
+var $metaData = document.getElementById("metaData_table");
+
 // for each element in '/names' route, appendChild a menu option
 d3.json("/names", function(error, response){
     console.log(response[0]);
@@ -13,6 +16,8 @@ d3.json("/names", function(error, response){
         $selector.appendChild($option_elem);
     }
 
+    // create first metadata table
+    meta_table(response[0]);
     // plot the first pie chart
     plot_pie(response[0]);
     // plot the first bubble chart
@@ -22,9 +27,34 @@ d3.json("/names", function(error, response){
 // set sample to whatever option is selected
 function optionChanged(option){
     console.log(option);
+    meta_table(option);
     plot_pie(option);// restyle pie chart
     plot_bubble_chart(option); // restyle bubble chart
     // Plotly.restyle() // restyle gauge
+}
+
+function meta_table(sample){ // create metadata table
+    var meta_url = "/metadata/" + sample; 
+
+    // Delete all previous child nodes under metaData table section
+    while ($metaData.children.length > 0){
+        $metaData.removeChild($metaData.firstChild);
+    }
+    // meta_url returns {AGE:..., BBTYPE:..., ETHNICITY:..., GENDER:..., LOCATION:..., SAMPLEID:...}
+    d3.json(meta_url, function(error, response){
+        for (var key in response){
+            var $row_element = document.createElement("tr");
+            var $cell_element1 = document.createElement("td"); // key cell
+            var $cell_element2 = document.createElement("td"); // value cell
+            var row1 = "<b>" + key + ":</b> "; // key cell content
+            var row2 = response[key]; // value cell content
+            $cell_element1.innerHTML = row1;
+            $cell_element2.innerHTML = row2;
+            $row_element.appendChild($cell_element1);
+            $row_element.appendChild($cell_element2);
+            $metaData.appendChild($row_element);
+        }
+    });
 }
 
 function plot_pie(sample) { // display the top 10 samples
@@ -85,8 +115,8 @@ function plot_pie(sample) { // display the top 10 samples
         //layout of the pie charts
         var layout = {
             title: "Top 10 Samples", 
-            height: 400,
-            width: 500
+            height: 480,
+            width: 600
         }
         
         // Create new plot if there is none, otherwise just restyle
@@ -124,31 +154,36 @@ function plot_bubble_chart(sample){
                 var joined_descr = split_str.join("<br>");
                 otu_descr.push(joined_descr);
             } 
+            console.log("otu_descr inside loop for bubble: " + otu_descr[0]);
         }); // end Plotly.d3.json for the otu description url
-        console.log("otu_descr: " + otu_descr); // This array is empty! why???
 
         /*** Use the OTU IDs for the x values & the Sample Values for the y values, 
          * Use the Sample Values for the marker size & the OTU IDs for the marker colors,
          * Use the OTU Description Data for the text values ***/
-        var trace = [{
+        var trace1 = {
             x: otu_ids,
             y: sample_values,
             mode: 'markers',
+            hoverinfo: "text + x + y", 
+            text: otu_descr,
             marker: {
                 size: sample_values
-            },
-            text: otu_descr
-        }];
+            }
+        };
+
+        var traces = [trace1];
 
         var layout = {
-            height: 600,
-            width: 800,
+            height: 750,
+            width: 1000,
+            hovermode:'closest',
+            showlegend: false,
             xaxis: {
                 title: "OTU IDs"
             },
             yaxis: {
                 title: "Sample Values"
-            }
+            } 
         };
 
         // update vars
@@ -164,7 +199,7 @@ function plot_bubble_chart(sample){
         var element = document.getElementById("bubble_chart");   
         if (element.children.length == 0){
             console.log("Plotting a new BUBBLE CHART!")
-            Plotly.newPlot("bubble_chart", trace, layout);
+            Plotly.newPlot("bubble_chart", traces, layout);
         } else {
             console.log("Restyling Bubble Chart")
             Plotly.restyle("bubble_chart", "x", [update_x]);
@@ -175,5 +210,4 @@ function plot_bubble_chart(sample){
         }
 
     }); // END Plotly.d3.json for the samples url
-
-}
+} //END bubble chart function

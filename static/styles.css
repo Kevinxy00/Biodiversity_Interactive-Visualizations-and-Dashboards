@@ -8,3 +8,33 @@
 .banner_descr {
     text-align: center;
 }
+
+#selector_div{ /* div for the sample selector dropdown menu */
+    text-align: center;
+    padding-bottom: 30px;
+    border: 1.5px solid red;
+    border-radius: 5px;
+}
+
+h5.select_title{
+    padding-top: 20px;
+    padding-bottom: 15px;
+    background-color: brown;
+}
+
+h5.metaData_title{
+    padding-top: 15px;
+    padding-bottom: 15px;
+    background-color: brown;
+}
+
+#metaData{
+    text-align: center;
+    border: 1.5px solid red;
+    border-radius: 5px;
+}
+
+#metaData_table{
+    text-align: left;
+    font-size: small;
+}

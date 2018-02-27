@@ -35,9 +35,17 @@
         <!-- graphs section --> 
         <div id="sample_top" class = "row"> <!-- sample selector, metadata, and graphs for the top row -->
             <div id = "sample_selection" class = "col-md-2">
-                <select id="selDataset" onchange="optionChanged(this.value)">
-
-                </select>
+                <div id="selector_div">
+                    <h5 class="select_title">Select Sample:</h5>
+                    <select id="selDataset" onchange="optionChanged(this.value)">
+                    </select>
+                </div>
+                </br>
+                <div id="metaData">
+                    <h5 class="metaData_title">Sample MetaData</h5>
+                    <table id="metaData_table" class="table table-hover table-condensed table-responsive">
+                    </table>
+                </div>
             </div>
 
             <div id="pie_chart" class="col-md-5"></div>
