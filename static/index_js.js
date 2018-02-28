@@ -220,17 +220,13 @@ function plot_bubble_chart(sample){
 function create_gauge(sample){
     var gauge_url = "/wfreq/" + sample;
 
-    // delete any previous gauge there
-    while ($wfreqGauge.children.length > 0){
-        $wfreqGauge.removeChild($wfreqGauge.firstChild);
-    }
-
     /** Gauge creation with wash frequency api url
         Adapted from https://plot.ly/javascript/gauge-charts/ **/
     d3.json(gauge_url, function(error, response){ // response is an integer
         /* 180 degree in half a circle. 
-        With 9 bins and response between 0-9, so response == 9 is gauge at max */
-        var level = response * 20;
+        With 9 bins, response between 0-9, and >9 is off the charts
+        so response == 10 is gauge at max */
+        var level = response * 18;
 
         // Trig to calc meter point
         var degrees = 180 - level,
@@ -247,17 +243,19 @@ function create_gauge(sample){
             pathEnd = ' Z';
         var path = mainPath.concat(pathX,space,pathY,pathEnd);
 
-        var data = [{ type: 'scatter',
+        var data1 = { type: 'scatter',
             x: [0], y:[0],
             marker: {size: 28, color:'850000'},
             showlegend: false,
             name: 'Wash Frequency',
             text: response,
-            hoverinfo: 'text+name'},
+            hoverinfo: 'text+name'};
+
+        var data2 = 
             { values: [50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50],
             rotation: 90,
-            text: ['8-9', '7-8', '6-7', '5-6',
-                    '4-5', '3-4', '2-3', '1-2', '0-1', ''],
+            text: ['9', '8', '7', '6',
+                    '5', '4', '3', '2', '0-1', ''],
             textinfo: 'text',
             textposition:'inside',
             marker: {colors:['rgba(14, 127, 0, 1)', 'rgba(14, 127, 0, .75)', 
@@ -265,13 +263,20 @@ function create_gauge(sample){
                                 'rgba(110, 154, 22, .5)', 'rgba(170, 202, 42, .5)', 
                                 'rgba(202, 209, 95, .5)', 'rgba(210, 206, 145, .5)', 
                                 'rgba(232, 226, 202, .5)', 'rgba(255, 255, 255, 0)']},
-            labels: ['8-9', '7-8', '6-7', '5-6',
-            '4-5', '3-4', '2-3', '1-2', '0-1', '>9'],
+            labels: ['9', '8', '7', '6',
+            '5', '4', '3', '2', '0-1', '>9'],
             hoverinfo: 'label',
             hole: .5,
             type: 'pie',
             showlegend: false
-        }];
+        };
+
+        var traceData = [data1, data2];
+
+        // for restyling the response name in the scatterplot point in the middle of the gauge
+        var update1 = {
+            text: response
+        };
 
         var layout = {
             shapes:[{
@@ -283,14 +288,32 @@ function create_gauge(sample){
                 }
             }],
             title: '<b>Belly Button Washing Frequency</b> <br>Scrubs per Week', 
-            autosize: true, 
+            height: 480, // autoscale:true messes up restyling (size increases each restyle)
             xaxis: {zeroline:false, showticklabels:false,
                         showgrid: false, range: [-1, 1]},
             yaxis: {zeroline:false, showticklabels:false,
                     showgrid: false, range: [-1, 1]}
         };
 
-        Plotly.newPlot('washing_freq_gauge', data, layout);
+        // for updating the shapes in the layout
+        var update_layout = {
+            shapes:[{
+                type: 'path',
+                path: path,
+                fillcolor: '850000',
+                line: {
+                    color: '850000'
+                }
+            }]
+        };
 
-    });
+        // If there is no previous gauge here (i.e. div contains no nodes), then create new gauge
+        if ($wfreqGauge.children.length == 0){
+            Plotly.newPlot('washing_freq_gauge', traceData, layout);
+        } else { // else, restyle current meter on the gauge
+            console.log("restyling wash freq gauge!"); 
+            Plotly.restyle('washing_freq_gauge', update1, [0]);
+            Plotly.relayout('washing_freq_gauge', update_layout);
+        }
+    }); // End plotly.d3.json for '/wfreq' 
 } // End gauge function
