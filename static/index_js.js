@@ -5,6 +5,8 @@
 var $selector = document.getElementById("selDataset");
 // get the metadata table section
 var $metaData = document.getElementById("metaData_table");
+// get the washing frequency gauge section
+var $wfreqGauge = document.getElementById("washing_freq_gauge");
 
 // for each element in '/names' route, appendChild a menu option
 d3.json("/names", function(error, response){
@@ -32,7 +34,7 @@ function optionChanged(option){
     meta_table(option);
     plot_pie(option);// restyle pie chart
     plot_bubble_chart(option); // restyle bubble chart
-    // Plotly.restyle() // restyle gauge
+    create_gauge(option) // restyle gauge
 }
 
 function meta_table(sample){ // create metadata table
@@ -117,9 +119,8 @@ function plot_pie(sample) { // display the top 10 samples
 
         //layout of the pie charts
         var layout = {
-            title: "Top 10 Samples", 
-            height: 480,
-            width: 600
+            title: "<b>Top 10 Samples</b>", 
+            autosize: true
         }
         
         // Create new plot if there is none, otherwise just restyle
@@ -180,8 +181,7 @@ function plot_bubble_chart(sample){
         var traces = [trace1];
 
         var layout = {
-            height: 750,
-            width: 1000,
+            height: 600,
             hovermode:'closest',
             showlegend: false,
             xaxis: {
@@ -216,13 +216,21 @@ function plot_bubble_chart(sample){
 } //END bubble chart function
 
 
-// *** gauge function ***
+// ***     Bonus section: gauge function     ***
 function create_gauge(sample){
     var gauge_url = "/wfreq/" + sample;
 
-    d3.json(gauge_url, function(error, response){
-        // Enter a speed between 0 and 180
-        var level = response;
+    // delete any previous gauge there
+    while ($wfreqGauge.children.length > 0){
+        $wfreqGauge.removeChild($wfreqGauge.firstChild);
+    }
+
+    /** Gauge creation with wash frequency api url
+        Adapted from https://plot.ly/javascript/gauge-charts/ **/
+    d3.json(gauge_url, function(error, response){ // response is an integer
+        /* 180 degree in half a circle. 
+        With 9 bins and response between 0-9, so response == 9 is gauge at max */
+        var level = response * 20;
 
         // Trig to calc meter point
         var degrees = 180 - level,
@@ -243,20 +251,22 @@ function create_gauge(sample){
             x: [0], y:[0],
             marker: {size: 28, color:'850000'},
             showlegend: false,
-            name: 'speed',
-            text: level,
+            name: 'Wash Frequency',
+            text: response,
             hoverinfo: 'text+name'},
-            { values: [50/6, 50/6, 50/6, 50/6, 50/6, 50/6, 50],
+            { values: [50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50],
             rotation: 90,
-            text: ['TOO FAST!', 'Pretty Fast', 'Fast', 'Average',
-                    'Slow', 'Super Slow', ''],
+            text: ['8-9', '7-8', '6-7', '5-6',
+                    '4-5', '3-4', '2-3', '1-2', '0-1', ''],
             textinfo: 'text',
             textposition:'inside',
-            marker: {colors:['rgba(14, 127, 0, .5)', 'rgba(110, 154, 22, .5)',
-                                'rgba(170, 202, 42, .5)', 'rgba(202, 209, 95, .5)',
-                                'rgba(210, 206, 145, .5)', 'rgba(232, 226, 202, .5)',
-                                'rgba(255, 255, 255, 0)']},
-            labels: ['151-180', '121-150', '91-120', '61-90', '31-60', '0-30', ''],
+            marker: {colors:['rgba(14, 127, 0, 1)', 'rgba(14, 127, 0, .75)', 
+                                'rgba(14, 127, 0, .5)', 'rgba(110, 154, 22, 0.6)', 
+                                'rgba(110, 154, 22, .5)', 'rgba(170, 202, 42, .5)', 
+                                'rgba(202, 209, 95, .5)', 'rgba(210, 206, 145, .5)', 
+                                'rgba(232, 226, 202, .5)', 'rgba(255, 255, 255, 0)']},
+            labels: ['8-9', '7-8', '6-7', '5-6',
+            '4-5', '3-4', '2-3', '1-2', '0-1', '>9'],
             hoverinfo: 'label',
             hole: .5,
             type: 'pie',
@@ -272,10 +282,8 @@ function create_gauge(sample){
                     color: '850000'
                 }
             }],
-            title: 'Gauge', 
-            Speed: 0-100,
-            height: 700,
-            width: 700,
+            title: '<b>Belly Button Washing Frequency</b> <br>Scrubs per Week', 
+            autosize: true, 
             xaxis: {zeroline:false, showticklabels:false,
                         showgrid: false, range: [-1, 1]},
             yaxis: {zeroline:false, showticklabels:false,

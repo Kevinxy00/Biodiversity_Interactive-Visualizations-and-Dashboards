@@ -42,3 +42,11 @@ h5.metaData_title{
     text-align: left;
     font-size: small;
 }
+
+#washing_freq_gauge{
+    padding-top: 50px;
+}
+
+#end_credits{
+    text-align: center;
+}
